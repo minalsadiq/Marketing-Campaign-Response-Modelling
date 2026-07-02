@@ -1,22 +1,83 @@
+
 # Marketing Campaign Response Modelling
 
-## Overview
-Machine Learning project to predict customer response to marketing campaigns using the UCI Bank Marketing dataset.
+## Project Overview
 
-## Project Structure
+This project predicts whether a customer will subscribe to a term deposit after a marketing campaign using the UCI Bank Marketing dataset.
 
-data/
-models/
-notebooks/
-reports/
-src/
+The project demonstrates an end-to-end machine learning pipeline including:
 
-## Models
+- Data Profiling
+- Exploratory Data Analysis (EDA)
+- Data Cleaning
+- Feature Engineering
+- Model Building
+- Hyperparameter Tuning
+- Model Explainability
+- Final Evaluation
+
+---
+
+## Dataset
+
+- UCI Bank Marketing Dataset
+- 41,188 customer records
+- Binary Classification
+
+Target Variable:
+
+- y (Yes / No)
+
+---
+
+## Models Used
+
 - Logistic Regression
 - Random Forest
 - XGBoost
 - LightGBM
 - CatBoost
 
+---
+
+## Project Structure
+
+```
+data/
+models/
+notebooks/
+reports/
+src/
+README.md
+requirements.txt
+```
+
+---
+
+## Technologies
+
+- Python
+- Pandas
+- NumPy
+- Scikit-Learn
+- XGBoost
+- LightGBM
+- CatBoost
+- MLflow
+- SHAP
+- Matplotlib
+- Plotly
+
+---
+
+## Results
+
+The best-performing model achieved excellent predictive performance using ROC-AUC as the primary evaluation metric.
+
+---
+
 ## Author
-Minal Sadiq
+
+**Minal Sadiq**
+
+Machine Learning Project
