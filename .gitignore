@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+
+mlruns/
+
+*.pyc
+
+catboost_info/
+
+reports/Profiling/
+
+*.html

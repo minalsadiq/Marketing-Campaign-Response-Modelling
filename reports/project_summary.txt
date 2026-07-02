@@ -1,0 +1,32 @@
+
+PROJECT SUMMARY
+==============================
+
+Project:
+Marketing Campaign Response Modelling
+
+Objective:
+Predict customers who are most likely to respond to a marketing campaign.
+
+Dataset:
+UCI Bank Marketing Dataset
+
+Best Model:
+CatBoost Classifier
+
+Evaluation Metrics
+-----------------------
+Accuracy : 90.09%
+Precision: 63.27%
+Recall   : 28.77%
+F1 Score : 39.56%
+ROC AUC  : 81.23%
+
+Business Value
+-----------------------
+• Reduce unnecessary campaign cost.
+• Improve response rate.
+• Better customer targeting.
+• Support data-driven marketing decisions.
+
+End of Report.
