@@ -1,4 +1,5 @@
 # 📊 Marketing Campaign Response Modelling
+
 ### End-to-End Machine Learning Pipeline for Predicting Customer Subscription to Bank Marketing Campaigns
 
 <p align="center">
@@ -9,70 +10,79 @@
 ![LightGBM](https://img.shields.io/badge/LightGBM-Gradient%20Boosting-green?style=for-the-badge)
 ![CatBoost](https://img.shields.io/badge/CatBoost-Classification-yellow?style=for-the-badge)
 ![MLflow](https://img.shields.io/badge/MLflow-Experiment%20Tracking-blueviolet?style=for-the-badge)
+![Streamlit](https://img.shields.io/badge/Streamlit-Deployed-FF4B4B?style=for-the-badge&logo=streamlit)
 ![License](https://img.shields.io/badge/License-MIT-red?style=for-the-badge)
 
 </p>
 
 ---
 
+# 🚀 Live Demo
+
+### 🌐 Streamlit App
+
+**https://marketing-campaign-response-modelling-5yyltmwsuofq88dgr9mwwd.streamlit.app/**
+
+---
+
 # 📌 Project Overview
 
-Marketing campaigns are one of the most expensive customer acquisition strategies used by financial institutions. Contacting every customer is inefficient, costly, and often results in very low conversion rates.
+Marketing campaigns are among the most expensive customer acquisition strategies used by banks. Contacting every customer is inefficient, costly, and often results in low conversion rates.
 
 This project develops a complete **end-to-end Machine Learning pipeline** capable of predicting whether a customer is likely to subscribe to a term deposit after a marketing campaign.
 
-The solution follows the complete Data Science lifecycle including:
+The project covers the complete Data Science lifecycle including:
 
 - Business Understanding
 - Data Profiling
-- Exploratory Data Analysis (EDA)
+- Exploratory Data Analysis
 - Data Cleaning
 - Feature Engineering
-- Model Development
+- Machine Learning Model Development
 - Hyperparameter Optimization
 - Model Explainability
-- Business Recommendations
-
-The project was implemented using modern Machine Learning practices with reproducible pipelines and experiment tracking.
+- Streamlit Deployment
 
 ---
 
 # 🎯 Business Objective
 
-The objective is to build a predictive classification model that helps banks:
+The objective is to help banks:
 
 - Reduce marketing costs
 - Improve campaign efficiency
 - Increase conversion rates
-- Identify high-potential customers
+- Identify high-value customers
 - Support data-driven marketing decisions
 
-Instead of contacting every customer, the bank can focus only on customers with high subscription probability.
+Instead of contacting every customer, the bank can target only those customers who are most likely to subscribe.
 
 ---
 
-# 📂 Dataset Information
+# 📂 Dataset
 
-**Dataset:** UCI Bank Marketing Dataset
+**Dataset**
 
-**Source:**
+UCI Bank Marketing Dataset
+
+Source
+
 https://archive.ics.uci.edu/ml/datasets/Bank+Marketing
 
-Dataset Characteristics
+Dataset Size
 
-- 41,188 customer records
-- 20 original features
+- 41,188 Customers
+- 20 Features
 - Binary Classification
-- Portuguese banking institution marketing campaigns
 
 Target Variable
 
 ```
 y
 
-Yes = Customer subscribed
+yes = Customer subscribed
 
-No = Customer did not subscribe
+no = Customer did not subscribe
 ```
 
 ---
@@ -81,94 +91,82 @@ No = Customer did not subscribe
 
 ```
 Business Understanding
-          │
-          ▼
+        │
+        ▼
 Data Collection
-          │
-          ▼
+        │
+        ▼
 Data Profiling
-          │
-          ▼
+        │
+        ▼
 Exploratory Data Analysis
-          │
-          ▼
+        │
+        ▼
 Data Cleaning
-          │
-          ▼
+        │
+        ▼
 Feature Engineering
-          │
-          ▼
+        │
+        ▼
 Train/Test Split
-          │
-          ▼
-Baseline Models
-          │
-          ▼
-Advanced Models
-          │
-          ▼
+        │
+        ▼
+Model Building
+        │
+        ▼
 Hyperparameter Tuning
-          │
-          ▼
+        │
+        ▼
 MLflow Experiment Tracking
-          │
-          ▼
+        │
+        ▼
 Model Explainability
-          │
-          ▼
+        │
+        ▼
 Final Evaluation
-          │
-          ▼
+        │
+        ▼
 Business Insights
+        │
+        ▼
+Streamlit Deployment
 ```
 
 ---
 
-# 📚 Exploratory Data Analysis
+# 📊 Exploratory Data Analysis
 
-Extensive exploratory analysis was performed including:
+Performed analysis includes:
 
-✔ Missing Value Analysis
-
-✔ Target Variable Distribution
-
-✔ Class Imbalance Analysis
-
-✔ Numerical Feature Analysis
-
-✔ Categorical Feature Analysis
-
-✔ Correlation Analysis
-
-✔ Outlier Detection
-
-✔ Customer Demographic Analysis
-
-✔ Campaign Performance Analysis
-
-✔ Economic Indicator Analysis
+- Missing Value Analysis
+- Target Distribution
+- Class Imbalance
+- Numerical Feature Analysis
+- Categorical Feature Analysis
+- Correlation Analysis
+- Outlier Detection
+- Customer Demographics
+- Campaign Analysis
+- Economic Indicator Analysis
 
 ---
 
 # 🧹 Data Cleaning
 
-The preprocessing stage includes:
+The preprocessing pipeline includes:
 
-- Handling unknown values
 - Removing duplicate records
-- Feature standardization
+- Handling unknown values
 - Data type correction
 - Leakage prevention
-- Removal of duration feature
+- Removing duration feature
 - Missing value verification
 
 ---
 
 # ⚙ Feature Engineering
 
-Feature engineering was performed to improve predictive performance.
-
-Created features include:
+Engineered Features
 
 - Previous Contact Indicator
 - Multiple Contacts Indicator
@@ -177,71 +175,65 @@ Created features include:
 - Summer Contact Indicator
 - Customer Cluster Feature
 
-Additional preprocessing includes:
+Preprocessing Pipeline
 
-- Standard Scaling
-- One-Hot Encoding
-- Column Transformer Pipeline
+- StandardScaler
+- OneHotEncoder
+- ColumnTransformer
+- Pipeline
 
 ---
 
 # 🤖 Machine Learning Models
 
-The following models were implemented and evaluated.
+The following models were implemented and compared:
 
 | Model | Purpose |
 |---------|----------|
-| Logistic Regression | Baseline Model |
-| Random Forest | Tree Ensemble |
+| Logistic Regression | Baseline |
+| Random Forest | Ensemble |
 | XGBoost | Gradient Boosting |
 | LightGBM | Gradient Boosting |
 | CatBoost | Gradient Boosting |
-| Hyperparameter Tuned Models | Performance Optimization |
 
 ---
 
-# 🔧 Hyperparameter Tuning
+# 🔧 Hyperparameter Optimization
 
-Model optimization was performed using:
+Optimization Techniques
 
-- Grid Search
+- GridSearchCV
 - Cross Validation
 - ROC-AUC Optimization
 
-The tuning process was tracked using **MLflow**.
+Experiment tracking performed using **MLflow**.
 
 ---
 
-# 📊 Model Evaluation
+# 📈 Model Evaluation
 
-Each model was evaluated using multiple classification metrics.
-
-Evaluation metrics include:
+Evaluation Metrics
 
 - Accuracy
 - Precision
 - Recall
 - F1 Score
-- ROC-AUC Score
+- ROC-AUC
 - Confusion Matrix
 - ROC Curve
 - Precision-Recall Curve
 
 ---
 
-# 🏆 Best Performing Model
-
-After comparing all candidate models, the best-performing model was selected based on overall predictive performance and ROC-AUC score.
-
-> Replace the values below with your final evaluation metrics.
+# 🏆 Final Model Performance
 
 | Metric | Score |
 |---------|-------|
-| Accuracy | 90.09% |
-| Precision | 63.27% |
-| Recall | 28.77% |
-| F1 Score | 39.56% |
-| ROC-AUC | 81.23% |
+| Accuracy | **90.09%** |
+| Precision | **63.27%** |
+| Recall | **28.77%** |
+| F1 Score | **39.56%** |
+| ROC-AUC | **81.23%** |
 
 ---
 
@@ -252,21 +244,37 @@ Model interpretation was performed using:
 - Feature Importance
 - SHAP Values
 - Global Feature Importance
-- Local Prediction Interpretation
-
-These methods improve transparency and explain model decisions.
+- Local Prediction Explanation
 
 ---
 
 # 💼 Business Insights
 
-Key findings from the project include:
+Key findings include:
 
-- Previous campaign success strongly influences future customer response.
-- Economic indicators significantly affect customer subscription behaviour.
-- Customer demographics contribute to marketing effectiveness.
-- Data-driven targeting can substantially reduce marketing costs.
-- Removing the "duration" feature prevents data leakage and produces a realistic predictive model.
+- Previous campaign success is the strongest predictor.
+- Economic indicators significantly affect customer response.
+- Customer demographics improve prediction quality.
+- Removing the duration feature prevents data leakage.
+- Targeted campaigns can substantially reduce marketing costs.
+
+---
+
+# 🌐 Streamlit Application
+
+A fully interactive web application was built using Streamlit.
+
+Features
+
+- Customer information input
+- Real-time prediction
+- Subscription probability
+- Input data preview
+- Responsive web interface
+
+Live Demo
+
+https://marketing-campaign-response-modelling-5yyltmwsuofq88dgr9mwwd.streamlit.app/
 
 ---
 
@@ -276,27 +284,17 @@ Key findings from the project include:
 Marketing-Campaign-Response-Modelling
 
 │
+├── App
+│   └── app.py
+│
 ├── data
-│
 ├── models
-│
 ├── notebooks
-│   ├── 01 Data Profiling
-│   ├── 02 EDA & Cleaning
-│   ├── 03 Feature Engineering
-│   ├── 04 Model Building
-│   ├── 05 Hyperparameter Tuning
-│   ├── 06 Model Explainability
-│   └── 07 Final Evaluation
-│
 ├── reports
-│
 ├── src
-│
+├── Images
 ├── requirements.txt
-│
 ├── README.md
-│
 └── .gitignore
 ```
 
@@ -329,19 +327,23 @@ Experiment Tracking
 
 - MLflow
 
-Model Explainability
+Explainability
 
 - SHAP
 
-Model Serialization
+Deployment
 
-- Joblib
+- Streamlit
+- Streamlit Community Cloud
+
+Version Control
+
+- Git
+- GitHub
 
 Development
 
 - VS Code
-- Git
-- GitHub
 
 ---
 
@@ -353,7 +355,7 @@ Clone the repository
 git clone https://github.com/minalsadiq/Marketing-Campaign-Response-Modelling.git
 ```
 
-Move into project
+Move into the project
 
 ```bash
 cd Marketing-Campaign-Response-Modelling
@@ -367,38 +369,30 @@ pip install -r requirements.txt
 
 ---
 
-# ▶ Running the Project
+# ▶ Run the Application
 
-Launch Jupyter Notebook
-
-```bash
-jupyter notebook
-```
-
-or execute Python scripts
+Launch Streamlit
 
 ```bash
-python src/train_model.py
+streamlit run App/app.py
 ```
 
 ---
 
 # 📈 Future Improvements
 
-Possible future enhancements include:
-
-- Streamlit Web Application
 - FastAPI Deployment
 - Docker Support
 - CI/CD Pipeline
-- Cloud Deployment (AWS/Azure/GCP)
+- AWS Deployment
+- Azure Deployment
+- Real-Time Prediction API
 - Automated Model Retraining
 - Model Monitoring
-- Real-Time Predictions
 
 ---
 
-# 📖 References
+# 📚 References
 
 - UCI Machine Learning Repository
 - Scikit-Learn Documentation
@@ -414,9 +408,10 @@ Possible future enhancements include:
 
 ## Minal Sadiq
 
-Machine Learning | Data Science | Artificial Intelligence
+Machine Learning • Data Science • Artificial Intelligence
 
-GitHub:
+GitHub
+
 https://github.com/minalsadiq
 
 ---
