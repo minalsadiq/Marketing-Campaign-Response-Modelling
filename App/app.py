@@ -15,7 +15,7 @@ st.set_page_config(
 st.title("📈 Marketing Campaign Response Predictor")
 
 st.write(
-    "Predict whether a customer is likely to subscribe to a term deposit."
+    "Predict whether a customer is likely to respond to a term deposit."
 )
 
 # ===================================
@@ -204,13 +204,13 @@ if st.button("Predict"):
     if prediction == 1:
 
         st.success(
-            f"Customer is likely to subscribe.\n\nProbability: {probability:.2%}"
+            f"Customer is likely to respond.\n\nProbability: {probability:.2%}"
         )
 
     else:
 
         st.error(
-            f"Customer is unlikely to subscribe.\n\nProbability: {probability:.2%}"
+            f"Customer is unlikely to respond.\n\nProbability: {probability:.2%}"
         )
 
     st.progress(float(probability))
