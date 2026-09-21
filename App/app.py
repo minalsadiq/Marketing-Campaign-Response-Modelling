@@ -16,7 +16,7 @@ import altair as alt
 import pandas as pd
 import streamlit as st
 
-from .predict import (
+from predict import (
     MissingColumnsError,
     get_feature_importance,
     get_model_info,
