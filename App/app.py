@@ -16,6 +16,20 @@ import altair as alt
 import pandas as pd
 import streamlit as st
 
+import sys
+from pathlib import Path
+
+# App folder ko Python path mein shamil karna taake predict module mil sakay
+current_dir = Path(__file__).resolve().parent
+if str(current_dir) not in sys.path:
+    sys.path.append(str(current_dir))
+
+from predict import (
+    MissingColumnsError,
+    get_feature_importance,
+    get_model_info,
+)
+
 from predict import (
     MissingColumnsError,
     get_feature_importance,
