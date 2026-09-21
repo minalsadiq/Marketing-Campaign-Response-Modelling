@@ -1,0 +1,130 @@
+{
+  "source_notebook": "03_data_cleaning_feature_engineering.ipynb",
+  "input_sha256": "74adfc578bf77a7ff4bb1ba4a9f8709d9e3c6907342959c2c8416847e0afb4d8",
+  "output_file": "..\\data\\processed\\bank_marketing_clean.csv",
+  "output_sha256": "9b069b524d740c3e0dc0c157e0a3d948f4977db6983628c22e49a41a5f7615de",
+  "n_rows": 39404,
+  "n_columns": 24,
+  "target_col": "y",
+  "target_positive_label": "yes",
+  "cleaning_log": [
+    {
+      "step": "drop_leakage_columns",
+      "detail": "Dropped ['duration']. Columns 21 -> 20."
+    },
+    {
+      "step": "drop_duplicate_rows",
+      "detail": "Dropped 1784 duplicate rows (excl. duration, keep=first) based on the 2.5% vs 12.0% target-rate evidence from Notebook 01. Rows 41,188 -> 39,404."
+    },
+    {
+      "step": "drop_raw_pdays",
+      "detail": "Dropped raw pdays (sentinel-corrupted, low information density); replaced by contacted_before + pdays_known_days above."
+    },
+    {
+      "step": "keep_unknown_as_category",
+      "detail": "Left 'unknown' as an explicit level in ['job', 'marital', 'education', 'default', 'housing', 'loan'], per Notebook 02 Section 6.2 (default's association was significant)."
+    },
+    {
+      "step": "drop_raw_calendar_columns",
+      "detail": "Dropped raw month, day_of_week after deriving their cyclical encodings, to avoid the same information being encoded twice downstream."
+    },
+    {
+      "step": "drop_raw_education",
+      "detail": "Dropped raw education after deriving education_ordinal, to avoid the same information being encoded twice downstream."
+    }
+  ],
+  "feature_engineering_log": [
+    {
+      "column": "contacted_before",
+      "dtype": "binary",
+      "rationale": "previous>0, using the more reliable of the two prior-contact signals (100% agreement with poutcome; Notebook 01 v2 Section 7) instead of pdays."
+    },
+    {
+      "column": "pdays_known_days",
+      "dtype": "numeric (96.3% missing)",
+      "rationale": "pdays with the 999 sentinel set to NaN. Missingness is structural, not random -- it will be imputed on the training split only (Notebook 08/09), never here."
+    },
+    {
+      "column": "month_sin",
+      "dtype": "numeric [-1, 1]",
+      "rationale": "Fixed sine/cosine transform of the calendar field -- deterministic, no fitting, captures cyclical adjacency a one-hot encoding would lose."
+    },
+    {
+      "column": "month_cos",
+      "dtype": "numeric [-1, 1]",
+      "rationale": "Fixed sine/cosine transform of the calendar field -- deterministic, no fitting, captures cyclical adjacency a one-hot encoding would lose."
+    },
+    {
+      "column": "day_of_week_sin",
+      "dtype": "numeric [-1, 1]",
+      "rationale": "Fixed sine/cosine transform of the calendar field -- deterministic, no fitting, captures cyclical adjacency a one-hot encoding would lose."
+    },
+    {
+      "column": "day_of_week_cos",
+      "dtype": "numeric [-1, 1]",
+      "rationale": "Fixed sine/cosine transform of the calendar field -- deterministic, no fitting, captures cyclical adjacency a one-hot encoding would lose."
+    },
+    {
+      "column": "education_ordinal",
+      "dtype": "numeric ordinal (with NaN for 'unknown')",
+      "rationale": "Fixed domain-knowledge order applied to education. 1686 'unknown' rows are NaN here -- imputed on the training split only, downstream."
+    },
+    {
+      "column": "age_group",
+      "dtype": "categorical (nominal)",
+      "rationale": "Fixed banking-segment age buckets, offered as a candidate feature -- kept/dropped based on incremental value in Notebook 09, not asserted here."
+    }
+  ],
+  "column_roles_for_pipeline": {
+    "target": [
+      "y"
+    ],
+    "numeric_passthrough": [
+      "age",
+      "campaign",
+      "previous",
+      "emp.var.rate",
+      "cons.price.idx",
+      "cons.conf.idx",
+      "euribor3m",
+      "nr.employed",
+      "month_sin",
+      "month_cos",
+      "day_of_week_sin",
+      "day_of_week_cos"
+    ],
+    "numeric_needs_imputation": [
+      "pdays_known_days",
+      "education_ordinal"
+    ],
+    "binary_passthrough": [
+      "contacted_before"
+    ],
+    "nominal_needs_encoding": [
+      "job",
+      "marital",
+      "default",
+      "housing",
+      "loan",
+      "contact",
+      "poutcome",
+      "age_group"
+    ],
+    "already_engineered_ordinal": [
+      "education_ordinal"
+    ],
+    "dropped_from_raw": [
+      "duration",
+      "pdays",
+      "month",
+      "day_of_week",
+      "education"
+    ]
+  },
+  "deferred_to_train_only_pipeline": [
+    "One-hot encoding vocabulary for nominal_needs_encoding columns",
+    "Imputation values for pdays_known_days and education_ordinal (numeric_needs_imputation)",
+    "Any scaling (StandardScaler/MinMaxScaler) if the chosen model needs it",
+    "PCA / dimensionality reduction on the macro-economic column block"
+  ]
+}
