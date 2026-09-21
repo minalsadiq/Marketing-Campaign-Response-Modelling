@@ -1,256 +1,760 @@
 """
-Streamlit frontend for the bank marketing response-scoring model.
+Streamlit frontend for the Bank Marketing Response Prediction Model.
 
-Run with:
-    streamlit run app.py
+Business workflow:
+    1. Enter one customer's campaign/profile information.
+    2. The app applies the same feature engineering used during training.
+    3. The saved preprocessing pipeline transforms the customer.
+    4. The final Random Forest model predicts subscription probability.
+    5. The result is displayed as an easy-to-understand business decision-support output.
 
-Reads the same artifacts predict.py does (final_model.joblib,
-final_preprocessor.joblib, final_model_config.json) -- this file adds a
-UI on top of predict.py's score_batch()/get_model_info(); it does not
-duplicate any scoring logic.
+Model artifacts expected in ../models/:
+    - final_model.joblib
+    - final_preprocessor.joblib
 """
 
 from __future__ import annotations
 
-import altair as alt
+from pathlib import Path
+import sys
+
+import numpy as np
 import pandas as pd
 import streamlit as st
 
-import sys
-from pathlib import Path
-
-# App folder ko Python path mein shamil karna taake predict module mil sakay
-current_dir = Path(__file__).resolve().parent
-if str(current_dir) not in sys.path:
-    sys.path.append(str(current_dir))
-
-from predict import (
-    MissingColumnsError,
-    get_feature_importance,
-    get_model_info,
-)
-
-from predict import (
-    MissingColumnsError,
-    get_feature_importance,
-    get_model_info,
-)
 
 # --------------------------------------------------------------------------
-# Page setup + styling
+# Make project root / models directory importable
 # --------------------------------------------------------------------------
+
+APP_DIR = Path(__file__).resolve().parent
+PROJECT_DIR = APP_DIR.parent
+MODELS_DIR = PROJECT_DIR / "models"
+
+if str(MODELS_DIR) not in sys.path:
+    sys.path.insert(0, str(MODELS_DIR))
+
+from predict import score_batch  # noqa: E402
+
+
+# --------------------------------------------------------------------------
+# Page configuration
+# --------------------------------------------------------------------------
+
 st.set_page_config(
-    page_title="Term Deposit Campaign · Response Scoring",
+    page_title="Bank Marketing Response Predictor",
     page_icon="🏦",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-PRIMARY = "#0F3D5C"       # deep navy
-ACCENT = "#C7962C"        # muted gold
-BG_CARD = "#F7F8FA"
-TEXT_MUTED = "#5B6B79"
-
-st.markdown(f"""
-<style>
-    .stApp {{ background-color: #FFFFFF; }}
-    h1, h2, h3 {{ color: {PRIMARY}; font-family: "Georgia", "Times New Roman", serif; }}
-    .subtitle {{ color: {TEXT_MUTED}; font-size: 0.95rem; margin-top: -0.6rem; }}
-    div[data-testid="stMetric"] {{
-        background-color: {BG_CARD};
-        border: 1px solid #E4E8EC;
-        border-left: 4px solid {ACCENT};
-        border-radius: 6px;
-        padding: 0.9rem 1rem 0.6rem 1rem;
-    }}
-    div[data-testid="stMetricLabel"] {{ color: {TEXT_MUTED}; font-weight: 500; }}
-    div[data-testid="stMetricValue"] {{ color: {PRIMARY}; }}
-    .stButton>button {{
-        background-color: {PRIMARY}; color: white; border-radius: 4px; border: none;
-        font-weight: 500;
-    }}
-    .stButton>button:hover {{ background-color: #0A2C42; color: white; }}
-    .caveat-box {{
-        background-color: #FFF8EC; border: 1px solid #EED9A8; border-radius: 6px;
-        padding: 0.8rem 1rem; font-size: 0.88rem; color: #6B5A2A;
-    }}
-    section[data-testid="stSidebar"] {{ background-color: {BG_CARD}; }}
-    footer {{visibility: hidden;}}
-</style>
-""", unsafe_allow_html=True)
 
 # --------------------------------------------------------------------------
-# Sidebar -- data input + operating point
+# Custom styling
 # --------------------------------------------------------------------------
-with st.sidebar:
-    st.markdown(f"<h3 style='margin-bottom:0'>Response Scoring</h3>", unsafe_allow_html=True)
-    st.caption("Term Deposit Marketing Campaign")
-    st.divider()
 
-    info = get_model_info()
-    st.markdown("**Model**")
-    st.write(f"{info.get('model_type', 'Unknown')} "
-             f"({info.get('n_estimators', '?')} trees, depth {info.get('max_depth', '?')})")
-    if "validation_pr_auc" in info:
-        st.write(f"Validation PR-AUC: **{info['validation_pr_auc']:.3f}**")
-    if "validation_lift_at_10pct" in info:
-        st.write(f"Lift@10%: **{info['validation_lift_at_10pct']:.2f}x**")
-    st.divider()
+PRIMARY = "#0F3D5C"
+ACCENT = "#C7962C"
+SUCCESS = "#16803C"
+DANGER = "#B42318"
+BG = "#F7F8FA"
+TEXT = "#243746"
 
-    uploaded_file = st.file_uploader("Upload customer data (CSV)", type=["csv"])
+st.markdown(
+    f"""
+    <style>
+        .stApp {{
+            background-color: #FFFFFF;
+        }}
 
-    st.markdown("**Operating point**")
-    mode = st.radio(
-        "Cutoff mode",
-        ["Call-centre capacity (top K%)", "Fixed probability threshold"],
-        help="Capacity-based is the recommended default -- see the caveat below.",
-    )
-    if mode == "Call-centre capacity (top K%)":
-        capacity_pct = st.slider("Capacity: top % of customers to call", 1, 100, 15)
-        min_probability = None
+        h1, h2, h3 {{
+            color: {PRIMARY};
+            font-family: "Georgia", "Times New Roman", serif;
+        }}
+
+        .subtitle {{
+            color: #5B6B79;
+            font-size: 1rem;
+            margin-top: -0.5rem;
+            margin-bottom: 1.5rem;
+        }}
+
+        .result-card {{
+            background: {BG};
+            border: 1px solid #E1E6EA;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 1rem;
+        }}
+
+        .probability {{
+            font-size: 3rem;
+            font-weight: 700;
+            color: {PRIMARY};
+            line-height: 1.1;
+        }}
+
+        .result-title {{
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: {TEXT};
+            margin-top: 0.5rem;
+        }}
+
+        .result-description {{
+            color: #5B6B79;
+            font-size: 0.95rem;
+            margin-top: 0.5rem;
+        }}
+
+        .info-box {{
+            background: #F7F8FA;
+            border: 1px solid #E1E6EA;
+            border-radius: 8px;
+            padding: 1rem 1.1rem;
+            margin: 0.75rem 0;
+        }}
+
+        .warning-box {{
+            background: #FFF8EC;
+            border: 1px solid #EED9A8;
+            border-radius: 8px;
+            padding: 1rem 1.1rem;
+            color: #6B5A2A;
+        }}
+
+        div[data-testid="stMetric"] {{
+            background-color: {BG};
+            border: 1px solid #E1E6EA;
+            border-left: 4px solid {ACCENT};
+            border-radius: 8px;
+            padding: 0.9rem;
+        }}
+
+        .stButton > button {{
+            background-color: {PRIMARY};
+            color: white;
+            border-radius: 7px;
+            border: none;
+            font-weight: 600;
+            padding: 0.65rem 1rem;
+        }}
+
+        .stButton > button:hover {{
+            background-color: #0A2C42;
+            color: white;
+        }}
+
+        section[data-testid="stSidebar"] {{
+            background-color: {BG};
+        }}
+
+        footer {{
+            visibility: hidden;
+        }}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+
+# --------------------------------------------------------------------------
+# Helper functions
+# --------------------------------------------------------------------------
+
+MONTH_MAP = {
+    "January": 1,
+    "February": 2,
+    "March": 3,
+    "April": 4,
+    "May": 5,
+    "June": 6,
+    "July": 7,
+    "August": 8,
+    "September": 9,
+    "October": 10,
+    "November": 11,
+    "December": 12,
+}
+
+DAY_MAP = {
+    "Monday": 0,
+    "Tuesday": 1,
+    "Wednesday": 2,
+    "Thursday": 3,
+    "Friday": 4,
+}
+
+
+def engineer_customer_features(
+    age: int,
+    job: str,
+    marital: str,
+    education: str,
+    default: str,
+    housing: str,
+    loan: str,
+    contact: str,
+    month: str,
+    day_of_week: str,
+    campaign: int,
+    previous: int,
+    pdays: int,
+    poutcome: str,
+    emp_var_rate: float,
+    cons_price_idx: float,
+    cons_conf_idx: float,
+    euribor3m: float,
+    nr_employed: float,
+) -> pd.DataFrame:
+    """
+    Create the exact raw feature-engineering contract expected by
+    final_preprocessor.joblib.
+
+    This reproduces the deterministic feature engineering from Notebook 03.
+    """
+
+    # ----------------------------------------------------------------------
+    # Calendar features
+    # ----------------------------------------------------------------------
+
+    month_num = MONTH_MAP[month]
+
+    month_sin = np.sin(2 * np.pi * month_num / 12)
+    month_cos = np.cos(2 * np.pi * month_num / 12)
+
+    day_num = DAY_MAP[day_of_week]
+
+    day_of_week_sin = np.sin(2 * np.pi * day_num / 5)
+    day_of_week_cos = np.cos(2 * np.pi * day_num / 5)
+
+    # ----------------------------------------------------------------------
+    # Education ordinal
+    # ----------------------------------------------------------------------
+
+    education_order = {
+        "illiterate": 0,
+        "basic.4y": 1,
+        "basic.6y": 2,
+        "basic.9y": 3,
+        "high.school": 4,
+        "professional.course": 5,
+        "university.degree": 6,
+        "unknown": np.nan,
+    }
+
+    education_ordinal = education_order[education]
+
+    # ----------------------------------------------------------------------
+    # Age group
+    # Same bins as Notebook 03
+    # [0, 30, 40, 50, 60, 100]
+    # ----------------------------------------------------------------------
+
+    if age < 30:
+        age_group = "<30"
+    elif age < 40:
+        age_group = "30-39"
+    elif age < 50:
+        age_group = "40-49"
+    elif age < 60:
+        age_group = "50-59"
     else:
-        capacity_pct = None
-        min_probability = st.slider("Minimum predicted probability", 0.0, 1.0, 0.30, 0.01)
+        age_group = "60+"
 
-    st.markdown(
-        "<div class='caveat-box'>Capacity-based cutoffs are more stable across time periods "
-        "than a fixed probability threshold -- the base subscription rate has been observed to "
-        "shift substantially between periods in backtesting. Use a fixed threshold only once "
-        "confirmed cost-per-call / value-per-subscription figures are available.</div>",
-        unsafe_allow_html=True,
+    # ----------------------------------------------------------------------
+    # Previous contact features
+    # ----------------------------------------------------------------------
+
+    contacted_before = int(previous > 0)
+
+    if pdays == 999:
+        pdays_known_days = np.nan
+    else:
+        pdays_known_days = float(pdays)
+
+    # ----------------------------------------------------------------------
+    # Exact columns expected by Notebook 04 preprocessor
+    #
+    # IMPORTANT:
+    # duration, month, day_of_week, education and pdays are NOT passed
+    # because Notebook 03 engineered/dropped them.
+    # ----------------------------------------------------------------------
+
+    row = {
+        "age": age,
+        "campaign": campaign,
+        "previous": previous,
+        "emp.var.rate": emp_var_rate,
+        "cons.price.idx": cons_price_idx,
+        "cons.conf.idx": cons_conf_idx,
+        "euribor3m": euribor3m,
+        "nr.employed": nr_employed,
+        "month_sin": month_sin,
+        "month_cos": month_cos,
+        "day_of_week_sin": day_of_week_sin,
+        "day_of_week_cos": day_of_week_cos,
+        "pdays_known_days": pdays_known_days,
+        "education_ordinal": education_ordinal,
+        "contacted_before": contacted_before,
+        "job": job,
+        "marital": marital,
+        "default": default,
+        "housing": housing,
+        "loan": loan,
+        "contact": contact,
+        "poutcome": poutcome,
+        "age_group": age_group,
+    }
+
+    return pd.DataFrame([row])
+
+
+def predict_customer(customer_df: pd.DataFrame) -> float:
+    """Run the saved deployment pipeline and return probability."""
+
+    result = score_batch(customer_df)
+
+    if result.empty:
+        raise ValueError("The model returned no prediction.")
+
+    return float(result.iloc[0]["probability"])
+
+
+def probability_label(probability: float) -> tuple[str, str]:
+    """
+    Business-friendly interpretation.
+
+    NOTE:
+    The model is not probability-calibrated, so this is presented as a
+    predicted score/probability rather than a guaranteed real-world chance.
+    """
+
+    if probability >= 0.70:
+        return (
+            "High predicted likelihood",
+            "The model assigns this customer a relatively high response score.",
+        )
+
+    if probability >= 0.40:
+        return (
+            "Moderate predicted likelihood",
+            "The model assigns this customer a moderate response score.",
+        )
+
+    if probability >= 0.20:
+        return (
+            "Lower predicted likelihood",
+            "The model assigns this customer a relatively low response score.",
+        )
+
+    return (
+        "Very low predicted likelihood",
+        "The model assigns this customer a low response score.",
     )
-    st.divider()
-    run_button = st.button("Score customers", type="primary", use_container_width=True)
+
 
 # --------------------------------------------------------------------------
 # Header
 # --------------------------------------------------------------------------
-st.markdown("# Term Deposit Campaign — Response Scoring")
-st.markdown("<p class='subtitle'>Rank customers by predicted subscription probability "
-            "and generate a prioritised call list.</p>", unsafe_allow_html=True)
-st.write("")
 
-# --------------------------------------------------------------------------
-# Main flow
-# --------------------------------------------------------------------------
-if uploaded_file is None:
-    st.info("Upload a customer CSV in the sidebar to get started. The file must contain the "
-            "same feature-engineered columns the model was trained on "
-            "(see predict.py's module docstring for the exact input contract).")
-    st.stop()
+st.markdown("# 🏦 Bank Marketing Response Predictor")
 
-raw_df = pd.read_csv(uploaded_file)
-
-if not run_button:
-    st.write(f"Loaded **{len(raw_df):,}** rows. Set the operating point in the sidebar and "
-             "click **Score customers**.")
-    st.dataframe(raw_df.head(10), use_container_width=True)
-    st.stop()
-
-try:
-    with st.spinner("Scoring customers..."):
-        call_list = score_batch(raw_df, capacity_pct=capacity_pct, min_probability=min_probability)
-        full_ranked = score_batch(raw_df)  # unfiltered, for the distribution chart
-except MissingColumnsError as exc:
-    st.error(f"**Input is missing required columns.**\n\n{exc}")
-    st.stop()
-except ValueError as exc:
-    st.error(f"**Could not score this file.**\n\n{exc}")
-    st.stop()
-
-# --------------------------------------------------------------------------
-# KPI row
-# --------------------------------------------------------------------------
-k1, k2, k3, k4 = st.columns(4)
-k1.metric("Customers scored", f"{len(raw_df):,}")
-k2.metric("Recommended calls", f"{len(call_list):,}",
-          f"{len(call_list) / len(raw_df):.1%} of file")
-k3.metric("Avg. probability (called)", f"{call_list['probability'].mean():.1%}")
-k4.metric("Avg. probability (all)", f"{full_ranked['probability'].mean():.1%}")
-
-st.write("")
-tab_list, tab_dist, tab_decile, tab_importance = st.tabs(
-    ["📋 Call List", "📊 Score Distribution", "🔟 Decile Breakdown", "🔍 Feature Importance"]
+st.markdown(
+    """
+    <p class="subtitle">
+    Enter a customer's profile and campaign information to estimate their
+    predicted likelihood of subscribing to the term deposit.
+    </p>
+    """,
+    unsafe_allow_html=True,
 )
 
-# --------------------------------------------------------------------------
-# Tab 1 -- Call list
-# --------------------------------------------------------------------------
-with tab_list:
-    st.markdown(f"**{len(call_list):,} customers** selected under the current operating point.")
-    display_cols = [c for c in call_list.columns if c not in ("decile",)]
-    st.dataframe(
-        call_list[display_cols].style.format({"probability": "{:.1%}"}),
-        use_container_width=True,
-        height=420,
-    )
-    st.download_button(
-        "⬇ Download call list (CSV)",
-        data=call_list.to_csv(index=False).encode("utf-8"),
-        file_name="call_list.csv",
-        mime="text/csv",
-        use_container_width=True,
-    )
 
 # --------------------------------------------------------------------------
-# Tab 2 -- Score distribution
+# Sidebar
 # --------------------------------------------------------------------------
-with tab_dist:
-    st.markdown("Predicted probability across the full uploaded file, with the current "
-                 "cutoff marked.")
-    cutoff_value = (
-        call_list["probability"].min() if len(call_list) else full_ranked["probability"].median()
-    )
-    hist = alt.Chart(full_ranked).mark_bar(color=PRIMARY, opacity=0.85).encode(
-        x=alt.X("probability:Q", bin=alt.Bin(maxbins=40), title="Predicted probability"),
-        y=alt.Y("count()", title="Number of customers"),
-    )
-    rule = alt.Chart(pd.DataFrame({"cutoff": [cutoff_value]})).mark_rule(
-        color=ACCENT, strokeWidth=2, strokeDash=[6, 3]
-    ).encode(x="cutoff:Q")
-    st.altair_chart((hist + rule).properties(height=360), use_container_width=True)
-    st.caption(f"Dashed line: current cutoff ({cutoff_value:.1%}).")
 
-# --------------------------------------------------------------------------
-# Tab 3 -- Decile breakdown
-# --------------------------------------------------------------------------
-with tab_decile:
-    st.markdown("Customers split into ten equal-sized groups by predicted probability "
-                 "(decile 1 = highest-scoring).")
-    decile_summary = (
-        full_ranked.groupby("decile")
-        .agg(customers=("probability", "size"), avg_probability=("probability", "mean"))
-        .reset_index()
-    )
-    bar = alt.Chart(decile_summary).mark_bar(color=PRIMARY).encode(
-        x=alt.X("decile:O", title="Decile (1 = highest scoring)"),
-        y=alt.Y("avg_probability:Q", title="Average predicted probability", axis=alt.Axis(format="%")),
-        tooltip=["decile", "customers", alt.Tooltip("avg_probability:Q", format=".1%")],
-    ).properties(height=360)
-    st.altair_chart(bar, use_container_width=True)
-    st.dataframe(
-        decile_summary.style.format({"avg_probability": "{:.1%}"}),
-        use_container_width=True,
+with st.sidebar:
+    st.markdown("### Model Information")
+
+    st.write("**Model:** Random Forest")
+    st.write("**Task:** Binary Classification")
+    st.write("**Target:** Term Deposit Subscription")
+    st.write("**Pipeline:** Feature Engineering → Preprocessing → Random Forest")
+
+    st.divider()
+
+    st.markdown("### About the prediction")
+
+    st.info(
+        "The displayed percentage is the model's predicted score for the "
+        "entered customer. It should be used as decision support rather "
+        "than as a guaranteed probability of future behaviour."
     )
 
+    st.divider()
+
+    st.caption(
+        "Developed as a machine-learning decision-support application "
+        "for the Bank Marketing Response Modeling project."
+    )
+
+
 # --------------------------------------------------------------------------
-# Tab 4 -- Feature importance
+# Customer information
 # --------------------------------------------------------------------------
-with tab_importance:
-    importance_df = get_feature_importance(top_n=15)
-    if importance_df.empty:
-        st.info(f"{info.get('model_type', 'This model')} does not expose native feature "
-                "importances.")
-    else:
-        chart = alt.Chart(importance_df).mark_bar(color=ACCENT).encode(
-            x=alt.X("importance:Q", title="Importance"),
-            y=alt.Y("feature:N", sort="-x", title=None),
-            tooltip=["feature", alt.Tooltip("importance:Q", format=".4f")],
-        ).properties(height=420)
-        st.altair_chart(chart, use_container_width=True)
-        st.caption("Native model importance, for a quick read. For a full explanation of "
-                    "individual predictions (SHAP), see Notebook 08.")
+
+st.markdown("## Customer Information")
+
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    age = st.number_input(
+        "Age",
+        min_value=18,
+        max_value=100,
+        value=35,
+        step=1,
+        help="Customer age in years.",
+    )
+
+    job = st.selectbox(
+        "Job",
+        [
+            "admin.",
+            "blue-collar",
+            "entrepreneur",
+            "housemaid",
+            "management",
+            "retired",
+            "self-employed",
+            "services",
+            "student",
+            "technician",
+            "unemployed",
+            "unknown",
+        ],
+    )
+
+    marital = st.selectbox(
+        "Marital Status",
+        ["married", "single", "divorced", "unknown"],
+    )
+
+    education = st.selectbox(
+        "Education",
+        [
+            "university.degree",
+            "high.school",
+            "professional.course",
+            "basic.9y",
+            "basic.6y",
+            "basic.4y",
+            "illiterate",
+            "unknown",
+        ],
+    )
+
+
+with col2:
+    default = st.selectbox(
+        "Credit Default",
+        ["no", "unknown", "yes"],
+        help="Whether the customer has credit in default.",
+    )
+
+    housing = st.selectbox(
+        "Housing Loan",
+        ["no", "yes", "unknown"],
+    )
+
+    loan = st.selectbox(
+        "Personal Loan",
+        ["no", "yes", "unknown"],
+    )
+
+    contact = st.selectbox(
+        "Contact Communication Type",
+        ["cellular", "telephone"],
+    )
+
+
+with col3:
+    campaign = st.number_input(
+        "Contacts During This Campaign",
+        min_value=1,
+        max_value=100,
+        value=1,
+        step=1,
+        help="Number of contacts performed during the current campaign.",
+    )
+
+    previous = st.number_input(
+        "Previous Contacts",
+        min_value=0,
+        max_value=100,
+        value=0,
+        step=1,
+        help="Number of contacts performed before this campaign.",
+    )
+
+    pdays = st.number_input(
+        "Days Since Previous Contact",
+        min_value=0,
+        max_value=999,
+        value=999,
+        step=1,
+        help="999 means the customer was not previously contacted.",
+    )
+
+    poutcome = st.selectbox(
+        "Previous Campaign Outcome",
+        ["nonexistent", "failure", "success", "other"],
+    )
+
+
+# --------------------------------------------------------------------------
+# Campaign / economic information
+# --------------------------------------------------------------------------
+
+st.markdown("## Campaign & Economic Information")
+
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    month = st.selectbox(
+        "Campaign Month",
+        list(MONTH_MAP.keys()),
+        index=4,
+    )
+
+    day_of_week = st.selectbox(
+        "Campaign Day",
+        list(DAY_MAP.keys()),
+        index=2,
+    )
+
+with col2:
+    emp_var_rate = st.number_input(
+        "Employment Variation Rate",
+        value=-1.8,
+        format="%.3f",
+        help="emp.var.rate",
+    )
+
+    cons_price_idx = st.number_input(
+        "Consumer Price Index",
+        value=93.444,
+        format="%.3f",
+        help="cons.price.idx",
+    )
+
+    cons_conf_idx = st.number_input(
+        "Consumer Confidence Index",
+        value=-36.1,
+        format="%.3f",
+        help="cons.conf.idx",
+    )
+
+with col3:
+    euribor3m = st.number_input(
+        "Euribor 3 Month Rate",
+        value=1.313,
+        format="%.3f",
+        help="euribor3m",
+    )
+
+    nr_employed = st.number_input(
+        "Number of Employees",
+        value=5099.1,
+        format="%.1f",
+        help="nr.employed",
+    )
+
+
+# --------------------------------------------------------------------------
+# Prediction button
+# --------------------------------------------------------------------------
 
 st.write("")
-st.caption("Internal decision-support tool. Not a substitute for compliance, fair-lending, "
-           "or regulatory review before use in an active campaign.")
+
+predict_button = st.button(
+    "🔮 Predict Customer Response",
+    type="primary",
+    use_container_width=True,
+)
+
+
+# --------------------------------------------------------------------------
+# Prediction
+# --------------------------------------------------------------------------
+
+if predict_button:
+
+    try:
+        customer_df = engineer_customer_features(
+            age=age,
+            job=job,
+            marital=marital,
+            education=education,
+            default=default,
+            housing=housing,
+            loan=loan,
+            contact=contact,
+            month=month,
+            day_of_week=day_of_week,
+            campaign=campaign,
+            previous=previous,
+            pdays=pdays,
+            poutcome=poutcome,
+            emp_var_rate=emp_var_rate,
+            cons_price_idx=cons_price_idx,
+            cons_conf_idx=cons_conf_idx,
+            euribor3m=euribor3m,
+            nr_employed=nr_employed,
+        )
+
+        with st.spinner("Analyzing customer with the trained model..."):
+            probability = predict_customer(customer_df)
+
+        percentage = probability * 100
+
+        label, description = probability_label(probability)
+
+        st.divider()
+
+        st.markdown("## Prediction Result")
+
+        r1, r2, r3 = st.columns(3)
+
+        with r1:
+            st.metric(
+                "Predicted Response Score",
+                f"{percentage:.1f}%",
+            )
+
+        with r2:
+            st.metric(
+                "Model Prediction",
+                "Likely to Respond" if probability >= 0.50 else "Less Likely to Respond",
+            )
+
+        with r3:
+            st.metric(
+                "Previous Contact",
+                "Yes" if previous > 0 else "No",
+            )
+
+        st.markdown(
+            f"""
+            <div class="result-card">
+                <div class="probability">{percentage:.1f}%</div>
+                <div class="result-title">{label}</div>
+                <div class="result-description">{description}</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        st.progress(min(max(probability, 0.0), 1.0))
+
+        st.write("")
+
+        # ------------------------------------------------------------------
+        # Business interpretation
+        # ------------------------------------------------------------------
+
+        st.markdown("### Business Interpretation")
+
+        if probability >= 0.70:
+            st.success(
+                "This customer receives a high predicted response score. "
+                "The model ranks this customer relatively strongly for "
+                "potential campaign response."
+            )
+
+        elif probability >= 0.40:
+            st.warning(
+                "This customer receives a moderate predicted response score. "
+                "The model identifies some response potential, but the score "
+                "is not in the highest range."
+            )
+
+        else:
+            st.info(
+                "This customer receives a lower predicted response score. "
+                "The model ranks this customer below the higher-scoring group."
+            )
+
+        # ------------------------------------------------------------------
+        # Generated feature summary
+        # ------------------------------------------------------------------
+
+        with st.expander("View engineered customer features"):
+            engineered_display = customer_df.T.reset_index()
+            engineered_display.columns = ["Feature", "Value"]
+
+            st.dataframe(
+                engineered_display,
+                use_container_width=True,
+                hide_index=True,
+            )
+
+        # ------------------------------------------------------------------
+        # Model caveat
+        # ------------------------------------------------------------------
+
+        st.markdown(
+            """
+            <div class="warning-box">
+            <strong>Important:</strong> This model was not probability-calibrated.
+            Therefore, the percentage should primarily be interpreted as a
+            model response score/ranking signal rather than a guaranteed
+            real-world probability. The project's evaluation also documented
+            performance variation across different time periods.
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    except FileNotFoundError as exc:
+        st.error(
+            "Model files could not be found. Make sure "
+            "`final_model.joblib` and `final_preprocessor.joblib` are available "
+            "in the configured models directory."
+        )
+        st.exception(exc)
+
+    except Exception as exc:
+        st.error("The customer could not be scored.")
+        st.exception(exc)
+
+
+# --------------------------------------------------------------------------
+# Initial screen
+# --------------------------------------------------------------------------
+
+else:
+    st.markdown(
+        """
+        <div class="info-box">
+        <strong>How to use:</strong><br><br>
+        1. Enter the customer's information above.<br>
+        2. Enter the campaign and economic information.<br>
+        3. Click <strong>Predict Customer Response</strong>.<br>
+        4. The trained machine-learning model will return the customer's
+        predicted response score.
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.write("")
+
+    c1, c2, c3 = st.columns(3)
+
+    c1.metric("Prediction Type", "Binary Classification")
+    c2.metric("Model", "Random Forest")
+    c3.metric("Output", "Response Score")
