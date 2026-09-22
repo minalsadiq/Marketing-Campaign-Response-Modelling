@@ -16,10 +16,11 @@ APP_DIR = Path(__file__).resolve().parent
 PROJECT_DIR = APP_DIR.parent
 MODELS_DIR = PROJECT_DIR / "models"
 
+# Make project root importable so root-level predict.py can be imported
 if str(PROJECT_DIR) not in sys.path:
     sys.path.insert(0, str(PROJECT_DIR))
 
-from predict import score_batch
+from predict import score_batch  # noqa: E402
 
 # Display labels (full names, friendly for a form) mapped to the raw
 # abbreviations the bank's export -- and therefore src.features.MONTH_MAP /
