@@ -1,0 +1,18 @@
+# Runtime dependencies for the deployed app (App/app.py -> models/predict.py
+# -> src/features.py) ONLY. Kept minimal on purpose: this is the file
+# Streamlit Community Cloud installs to build the deployed app, and every
+# extra package here is extra build time and extra ways for the deploy to
+# break for reasons that have nothing to do with the app itself.
+#
+# scikit-learn is pinned exactly to match the version final_model.joblib /
+# final_preprocessor.joblib were actually saved with (see models/README.md)
+# -- unpickling a newer sklearn model with an older sklearn is not
+# guaranteed to work. pandas/numpy/joblib use a compatible range rather
+# than an exact pin so pip can resolve to whatever build has a prebuilt
+# wheel for the Python version actually in use, instead of being forced to
+# compile an old release from source.
+streamlit==1.38.0
+scikit-learn==1.9.0
+pandas>=2.2,<3.0
+numpy>=1.26,<3.0
+joblib>=1.4,<2.0
