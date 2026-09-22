@@ -19,7 +19,7 @@ MODELS_DIR = PROJECT_DIR / "models"
 if str(PROJECT_DIR) not in sys.path:
     sys.path.insert(0, str(PROJECT_DIR))
 
-from predict import score_batch  # noqa: E402
+from predict import score_batch
 
 # Display labels (full names, friendly for a form) mapped to the raw
 # abbreviations the bank's export -- and therefore src.features.MONTH_MAP /
