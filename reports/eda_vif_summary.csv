@@ -1,0 +1,10 @@
+Feature,VIF,VIF_Level
+nr.employed,26255.52371333906,High
+cons.price.idx,22358.99926604815,High
+euribor3m,226.79344450957643,High
+cons.conf.idx,118.22305973517824,High
+pdays_clean,68.56438207880929,High
+emp.var.rate,28.976688969531725,High
+age,16.051506329188864,High
+campaign,1.912520385898799,Low
+previous,1.504454015410916,Low

@@ -1,0 +1,10 @@
+issue,finding
+Standard NaN,None
+Disguised missing ('unknown'),"6 columns, 0.2%-20.9%"
+pdays sentinel (999),96.3% of rows
+pdays <-> poutcome inconsistency,4110 rows (10%) disagree
+Exact duplicates (all cols),12
+Duplicates (excl. duration),"1784 (4.3%) - both readings documented, decision deferred"
+Near-constant feature,"default: 'yes' in 3/41,188 rows"
+Macro columns are a time proxy,"3 update frequencies, no explicit date column"
+Target leakage,duration - must drop before modelling
