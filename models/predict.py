@@ -36,7 +36,8 @@ _PROJECT_ROOT = _MODEL_DIR.parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
-from src.features import engineer_features  # noqa: E402  (path setup must run first)
+# predict.py
+from src.features import engineer_features # noqa: E402  (path setup must run first)
 
 _preprocessor = joblib.load(_MODEL_DIR / "final_preprocessor.joblib")
 _model = joblib.load(_MODEL_DIR / "final_model.joblib")
