@@ -1,0 +1,87 @@
+{
+  "purpose": "Removes the need to trust a single placeholder cost/value assumption (reports/business_assumptions.json). For ANY real cost-per-call and value-per-subscription the business supplies, find the capacity_pct row whose breakeven_value_to_cost_ratio is closest to (real value / real cost) -- that's the data-driven capacity to operate at, no model retraining needed.",
+  "computed_on": "final_model.joblib predictions on the test set (39.5% positive rate -- a crisis-recovery-period upper bound per split_config.json, so precision figures here should be treated as optimistic vs. a steady-state period).",
+  "breakeven_table": [
+    {
+      "capacity_pct": 5,
+      "n_customers_called": 295,
+      "precision_at_k": 0.6576271186440678,
+      "recall_at_k": 0.0831191088260497,
+      "breakeven_value_to_cost_ratio": 1.520618556701031,
+      "interpretation": "Calling the top 5% breaks even once value-per-subscription is at least 1.5x cost-per-call."
+    },
+    {
+      "capacity_pct": 10,
+      "n_customers_called": 591,
+      "precision_at_k": 0.6548223350253807,
+      "recall_at_k": 0.16580976863753213,
+      "breakeven_value_to_cost_ratio": 1.5271317829457365,
+      "interpretation": "Calling the top 10% breaks even once value-per-subscription is at least 1.5x cost-per-call."
+    },
+    {
+      "capacity_pct": 15,
+      "n_customers_called": 886,
+      "precision_at_k": 0.6489841986455982,
+      "recall_at_k": 0.24635818337617824,
+      "breakeven_value_to_cost_ratio": 1.5408695652173914,
+      "interpretation": "Calling the top 15% breaks even once value-per-subscription is at least 1.5x cost-per-call."
+    },
+    {
+      "capacity_pct": 20,
+      "n_customers_called": 1182,
+      "precision_at_k": 0.6023688663282571,
+      "recall_at_k": 0.3050556983718937,
+      "breakeven_value_to_cost_ratio": 1.660112359550562,
+      "interpretation": "Calling the top 20% breaks even once value-per-subscription is at least 1.7x cost-per-call."
+    },
+    {
+      "capacity_pct": 25,
+      "n_customers_called": 1477,
+      "precision_at_k": 0.5463777928232905,
+      "recall_at_k": 0.34575835475578404,
+      "breakeven_value_to_cost_ratio": 1.8302354399008673,
+      "interpretation": "Calling the top 25% breaks even once value-per-subscription is at least 1.8x cost-per-call."
+    },
+    {
+      "capacity_pct": 30,
+      "n_customers_called": 1773,
+      "precision_at_k": 0.5087422447828539,
+      "recall_at_k": 0.3864610111396744,
+      "breakeven_value_to_cost_ratio": 1.9656319290465634,
+      "interpretation": "Calling the top 30% breaks even once value-per-subscription is at least 2.0x cost-per-call."
+    },
+    {
+      "capacity_pct": 40,
+      "n_customers_called": 2364,
+      "precision_at_k": 0.4682741116751269,
+      "recall_at_k": 0.47429305912596403,
+      "breakeven_value_to_cost_ratio": 2.13550135501355,
+      "interpretation": "Calling the top 40% breaks even once value-per-subscription is at least 2.1x cost-per-call."
+    },
+    {
+      "capacity_pct": 50,
+      "n_customers_called": 2955,
+      "precision_at_k": 0.4372250423011844,
+      "recall_at_k": 0.5535561268209083,
+      "breakeven_value_to_cost_ratio": 2.2871517027863777,
+      "interpretation": "Calling the top 50% breaks even once value-per-subscription is at least 2.3x cost-per-call."
+    },
+    {
+      "capacity_pct": 75,
+      "n_customers_called": 4433,
+      "precision_at_k": 0.42612226483194227,
+      "recall_at_k": 0.8093401885175664,
+      "breakeven_value_to_cost_ratio": 2.346744309158285,
+      "interpretation": "Calling the top 75% breaks even once value-per-subscription is at least 2.3x cost-per-call."
+    },
+    {
+      "capacity_pct": 100,
+      "n_customers_called": 5911,
+      "precision_at_k": 0.39485704618507866,
+      "recall_at_k": 1.0,
+      "breakeven_value_to_cost_ratio": 2.532562125107112,
+      "interpretation": "Calling the top 100% breaks even once value-per-subscription is at least 2.5x cost-per-call."
+    }
+  ],
+  "worked_example": "If Finance says a call costs $8 and a subscription is worth $200 net (value:cost = 25:1), scan the table for the row whose breakeven_value_to_cost_ratio is closest to 25 -- that row's capacity_pct is the data-justified calling capacity, not the top-15% figure used elsewhere as a untested placeholder default."
+}

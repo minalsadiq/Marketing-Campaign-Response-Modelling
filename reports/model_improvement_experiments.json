@@ -1,0 +1,44 @@
+{
+  "purpose": "Follow-up experiments run after the original 01-09 pipeline was complete, in response to a review asking whether validation PR-AUC (0.1959, tuned Random Forest) or calibration (previously undone) could be improved. Recorded here -- including the negative results -- so nobody re-runs the same four experiments in six months expecting a different answer.",
+  "protocol": "Same discipline as Notebook 06/07: fit on X_train_tree_based / y_train only, select on X_val_tree_based / y_val PR-AUC. Test set was NOT touched for any of this -- it stays a one-time evaluation per split_config.json.",
+  "baseline": {
+    "model": "models/tuned_random_forest.joblib (Notebook 07 Optuna output)",
+    "val_pr_auc": 0.1958653848675337,
+    "val_roc_auc": 0.6099195127945533
+  },
+  "experiments": [
+    {
+      "name": "HistGradientBoosting, broader RandomizedSearchCV",
+      "method": "40-iteration random search over max_iter/max_depth/learning_rate/max_leaf_nodes/min_samples_leaf/l2_regularization/class_weight, TimeSeriesSplit(5) scored on PR-AUC, fit on train only.",
+      "result_val_pr_auc": 0.1457064417296371,
+      "verdict": "Worse than baseline RF. Confirms Notebook 06/08's finding that boosting methods underperform RF on this feature set, now under a wider search too -- not just under-tuned."
+    },
+    {
+      "name": "Random Forest, broader RandomizedSearchCV than the original Optuna run",
+      "method": "10-iteration random search (single-core budget) over n_estimators/max_depth/min_samples_leaf/min_samples_split/max_features/class_weight, TimeSeriesSplit(3), fit on train only.",
+      "result_val_pr_auc": 0.18759091997491856,
+      "verdict": "Worse than baseline. Notebook 07's Optuna run (TPE sampler, larger trial budget) found a better point than a quick random search reproduces -- evidence the original tuning was a genuine optimum for this search space, not a lucky seed."
+    },
+    {
+      "name": "Probability-weighted ensemble: tuned RF + tuned Logistic Regression",
+      "method": "Weighted average of predict_proba outputs, weights swept 0.3-0.9 on RF; also tried rank-average blending.",
+      "result": "PR-AUC strictly increases as RF weight -> 1.0 (best blend at RF=0.9 still only 0.1937); no blend beat pure RF.",
+      "verdict": "LR is not diverse/strong enough at this task to add ranking value on top of RF. Do not ensemble these two for production."
+    },
+    {
+      "name": "Hand-crafted interaction features (macro_stress_index, contacted_x_poutcome_success, campaign_x_previous), same tuned RF hyperparameters",
+      "result_val_pr_auc_no_class_weight": 0.15080463951734022,
+      "result_val_pr_auc_balanced": 0.1750073229307414,
+      "verdict": "Worse than baseline both ways. RF's own feature-subsampling already captures these interactions; adding redundant/noisy engineered columns diluted split quality rather than helping. Not recommended."
+    },
+    {
+      "name": "Probability calibration: CalibratedClassifierCV (isotonic and sigmoid), 5-fold, tuned RF hyperparameters, fit on train only",
+      "result_isotonic": {"val_pr_auc": 0.11266390489628297, "val_brier": 0.11812786034693114},
+      "result_sigmoid": {"val_pr_auc": 0.08982780487837619, "val_brier": 0.11774089511820857},
+      "uncalibrated_reference": {"val_pr_auc": 0.1958653848675337, "val_brier": 0.3346949043581999},
+      "verdict": "Real trade-off, not a wash. Calibration cuts Brier score by ~65% (0.335 -> ~0.118) -- probabilities become genuinely more literal -- but costs 42-54% of ranking quality (PR-AUC 0.196 -> 0.09-0.11). Cause: CalibratedClassifierCV's internal 5-fold refit each sees only 80% of an already-small positive class (~1,600 positives train-wide), which measurably hurts ranking even though it fixes probability magnitude.",
+      "recommendation": "DO NOT calibrate the production model. The deployment operating point (models/predict.py, model_card.json) is rank/percentile-based (top-K%) specifically because raw probabilities aren't trustworthy across the regime shift documented in split_config.json -- that design decision means ranking quality (PR-AUC) is what matters operationally, not Brier score. Calibration would be the right move only if a future version switches to a fixed-probability decision rule, which is not recommended here for the reason above. This supersedes the model card's previous one-line 'not calibrated' caveat with a tested, quantified reason."
+    }
+  ],
+  "overall_conclusion": "Four independent attempts to beat the Notebook 07 tuned Random Forest (broader boosting search, broader RF search, ensembling, feature engineering) all underperformed it on validation PR-AUC, and calibration was tested and explicitly rejected for the ranking use case. This is treated as reasonably strong (not proof-positive) evidence that 0.1959 is close to what this feature set / algorithm family can extract from this data, given the constraints already documented elsewhere (crisis-period train/test regime shift, duration excluded as leakage, ~6-11% base rate). Further gains are more likely to come from new data (richer behavioral/RFM features, a longer or more balanced time window) than from more modeling effort on the current feature set."
+}

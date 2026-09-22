@@ -1,0 +1,19 @@
+{
+  "status": "PLACEHOLDER -- NOT VALIDATED. Do not use for a real go/no-go capacity decision until Marketing/Finance sign off on real figures.",
+  "why_this_file_exists": "Notebook 08/09 and evaluation_results.json used illustrative cost/value numbers to demonstrate HOW to pick an operating point, not WHAT the operating point should be. Previously those numbers only existed as inline notebook variables and comments, which makes them easy to miss or to accidentally treat as real. Pulling them into one named, clearly-flagged config file means: (1) there is exactly one place to update once real figures exist, (2) anyone reading reports/ sees the placeholder status immediately, without needing to find the right notebook cell.",
+  "assumed_cost_per_call": 8,
+  "assumed_value_per_subscription": 200,
+  "assumed_capacity_pct": 15,
+  "cost_per_call_should_reflect": [
+    "Agent/rep time per call (average handle time x fully loaded hourly cost)",
+    "Any dialer/telephony cost per attempt",
+    "Opportunity cost of the rep's time on a lower-probability call"
+  ],
+  "value_per_subscription_should_reflect": [
+    "Expected net margin from a term deposit subscription, not gross deposit size",
+    "Time horizon over which that margin is realized",
+    "Any acquisition costs already sunk that shouldn't be double-counted here"
+  ],
+  "how_this_is_used": "models/predict.py's score_batch(capacity_pct=...) takes capacity_pct directly and never reads this file -- the deployed scoring code has no hardcoded business assumption baked in, only the percentile parameter the caller supplies. This file is for notebook-side sensitivity analysis (Notebook 08 Section 3, reports/evaluation_results.json's threshold_optimization block) and for whoever operationalizes a capacity_pct choice to have one place to look.",
+  "sensitivity_note": "reports/evaluation_results.json's threshold_optimization.sensitivity_table shows the implied operating point is highly sensitive to the value:cost ratio (3.5% of customers called at 5:1, ~90%+ at 15:1+) -- getting real figures here matters more than any further model tuning."
+}

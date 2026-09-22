@@ -1,0 +1,70 @@
+{
+  "input_drift": {
+    "method": "Population Stability Index, monthly, on all model features",
+    "priority_features": [
+      "euribor3m",
+      "emp.var.rate",
+      "nr.employed",
+      "cons.price.idx"
+    ],
+    "alert_thresholds": {
+      "moderate": 0.1,
+      "significant": 0.25
+    },
+    "current_baseline_example": [
+      {
+        "Feature": "age",
+        "PSI": 0.28678666624285354,
+        "Alert_Level": "Significant"
+      },
+      {
+        "Feature": "campaign",
+        "PSI": 0.11138783297994895,
+        "Alert_Level": "Moderate"
+      },
+      {
+        "Feature": "previous",
+        "PSI": 0.0,
+        "Alert_Level": "OK"
+      },
+      {
+        "Feature": "emp.var.rate",
+        "PSI": 10.74097798103583,
+        "Alert_Level": "Significant"
+      },
+      {
+        "Feature": "euribor3m",
+        "PSI": 8.332688071267379,
+        "Alert_Level": "Significant"
+      },
+      {
+        "Feature": "nr.employed",
+        "PSI": 10.74097798103583,
+        "Alert_Level": "Significant"
+      }
+    ],
+    "note": "The macro-economic features (emp.var.rate, euribor3m, nr.employed) show PSI far outside the textbook 0-2 range used for the alert thresholds below -- this is expected given the 2008-2010 regime shift documented in Section 6.1 above (train/test barely overlap in range), not a bug in the PSI formula. A newly off-scale PSI on a *different* feature would be the actual anomaly worth investigating."
+  },
+  "prediction_drift": {
+    "method": "PSI on predict_proba output, per scoring batch",
+    "current_baseline_example": 1.1504573101661761
+  },
+  "realized_performance_tracking": {
+    "method": "Monthly: join actual outcomes back to that period's predictions, recompute PR-AUC and decile-level capture rate.",
+    "trigger": "If capture rate in the top-called decile drops toward the population base rate, the ranking has stopped working, regardless of what input PSI says."
+  },
+  "retraining_cadence": {
+    "recommendation": "Quarterly by default, immediately if any priority feature's PSI exceeds 0.25, OR if lift_based_retrain_trigger fires (see below) -- whichever comes first.",
+    "rationale": "Notebook 01/04's regime-shift finding showed target rate and macro features can move dramatically within a single year; quarterly is a starting point, not a guarantee -- tighten if realized performance degrades faster than that in practice."
+  },
+  "feedback_loop_guard": {
+    "risk": "If only the top-K% ever gets called, outcomes for the rest of the population are never observed again, and future training data becomes biased toward customers who already looked promising.",
+    "mitigation": "Reserve a small (5-10%) random-exploration slice of every campaign, called regardless of score, so the next retraining cycle has unbiased outcome data across the whole score range."
+  },
+  "lift_based_retrain_trigger": {
+    "why_this_exists": "notebooks/10_Robustness_Reliability_Backtest.ipynb's rolling-origin backtest found one out-of-time window (origin 4 of 7) where lift-over-naive was 0.77x -- worse than calling customers at random -- with a bootstrapped 95% CI of [0.72x, 0.85x] entirely below 1.0x (reports/rolling_origin_backtest.json). That is a statistically confirmed instance of the model actively hurting call-prioritization, not a borderline point estimate. A purely calendar-based quarterly cadence would not have caught this until the end of that quarter.",
+    "metric": "lift_over_naive = PR-AUC(top-called-slice) / population_positive_rate, computed monthly the same way realized_performance_tracking already does, using the current month's actual outcomes.",
+    "trigger": "If a rolling monthly lift_over_naive falls below 1.0x (or, once enough live volume accumulates to bootstrap a monthly CI, its 95% CI upper bound falls below 1.0x), retrain immediately -- do not wait for the next quarterly cycle or for a PSI threshold to also fire. Below 1.0x means the model is worse than not scoring at all for that period.",
+    "relationship_to_quarterly_cadence": "This trigger supersedes retraining_cadence's quarterly default when it fires; the quarterly cadence remains the floor (retrain at least that often even if lift stays healthy), this trigger is the ceiling on how long a confirmed sub-1.0x period is allowed to run before action."
+  }
+}

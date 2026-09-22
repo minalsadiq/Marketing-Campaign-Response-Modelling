@@ -1,0 +1,57 @@
+{
+  "tuned_rf_on_val": {
+    "pr_auc": {
+      "point_estimate": 0.1958653848675337,
+      "bootstrap_mean": 0.19782754477243117,
+      "ci_95_low": 0.1713449357534489,
+      "ci_95_high": 0.22537353316747358,
+      "n_boot_used": 2000
+    },
+    "roc_auc": {
+      "point_estimate": 0.6099195127945533,
+      "bootstrap_mean": 0.6102025933087843,
+      "ci_95_low": 0.5867146881009969,
+      "ci_95_high": 0.6327428945260465,
+      "n_boot_used": 2000
+    },
+    "note": "Model-selection stage (matches evaluation_results.json's 0.1959)."
+  },
+  "final_model_on_test": {
+    "pr_auc": {
+      "point_estimate": 0.5071170826563867,
+      "bootstrap_mean": 0.5079463842591965,
+      "ci_95_low": 0.48675390031905547,
+      "ci_95_high": 0.5299295885978957,
+      "n_boot_used": 2000
+    },
+    "roc_auc": {
+      "point_estimate": 0.6021537678000383,
+      "bootstrap_mean": 0.6020853202314277,
+      "ci_95_low": 0.5868219900520315,
+      "ci_95_high": 0.6165722345603822,
+      "n_boot_used": 2000
+    },
+    "precision_at_15pct": {
+      "point_estimate": 0.6489841986455982,
+      "bootstrap_mean": 0.6488261851015801,
+      "ci_95_low": 0.618481941309255,
+      "ci_95_high": 0.6805869074492099,
+      "n_boot_used": 2000
+    },
+    "recall_at_15pct": {
+      "point_estimate": 0.24635818337617824,
+      "bootstrap_mean": 0.24624647310707912,
+      "ci_95_low": 0.23524227200687234,
+      "ci_95_high": 0.25752382358617115,
+      "n_boot_used": 2000
+    },
+    "lift_at_15pct": {
+      "point_estimate": 1.6435928012828325,
+      "bootstrap_mean": 1.6428475197922625,
+      "ci_95_low": 1.569432358727565,
+      "ci_95_high": 1.718085012661239,
+      "n_boot_used": 2000
+    },
+    "note": "final_model.joblib is fit on train+val combined; test is its one-time holdout. Test positive rate 39.5% is a crisis-recovery upper bound (split_config.json), not steady-state."
+  }
+}

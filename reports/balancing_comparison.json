@@ -1,0 +1,28 @@
+{
+  "A_class_weight_balanced (current production)": {
+    "val_pr_auc": 0.19259143198325068,
+    "val_roc_auc": 0.5957224480680826
+  },
+  "B_no_balancing": {
+    "val_pr_auc": 0.15003957072799567,
+    "val_roc_auc": 0.5424382374084777
+  },
+  "C_smote_1to1": {
+    "val_pr_auc": 0.16651929611471555,
+    "val_roc_auc": 0.62439673446647,
+    "n_after_resampling": 51960
+  },
+  "D_random_oversample_1to1": {
+    "val_pr_auc": 0.17465949299967903,
+    "val_roc_auc": 0.5977104544154289
+  },
+  "E_random_undersample_1to1": {
+    "val_pr_auc": 0.15046715014480058,
+    "val_roc_auc": 0.5837588687587738,
+    "n_after_resampling": 3204
+  },
+  "F_smote_plus_class_weight": {
+    "val_pr_auc": 0.16651929611471555,
+    "val_roc_auc": 0.62439673446647
+  }
+}
