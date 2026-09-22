@@ -1,0 +1,50 @@
+{
+  "source_notebook": "04_train_validation_test_split.ipynb",
+  "input_sha256": "9b069b524d740c3e0dc0c157e0a3d948f4977db6983628c22e49a41a5f7615de",
+  "split_strategy": "chronological (row-order), 70/15/15 -- NOT random, per Notebook 02 Section 8.1",
+  "split_boundaries": {
+    "train_end_row": 27582,
+    "val_end_row": 33493,
+    "total_rows": 39404
+  },
+  "split_sizes": [
+    {
+      "Split": "Train",
+      "Rows": 27582,
+      "Row_Range": "0:27582",
+      "Positive_Rate": 0.05808135740700457
+    },
+    {
+      "Split": "Validation",
+      "Rows": 5911,
+      "Row_Range": "27582:33493",
+      "Positive_Rate": 0.11199458636440535
+    },
+    {
+      "Split": "Test",
+      "Rows": 5911,
+      "Row_Range": "33493:39404",
+      "Positive_Rate": 0.39485704618507866
+    }
+  ],
+  "imputation_values_from_train": {
+    "pdays_known_days": 5.0,
+    "education_ordinal": 4.0
+  },
+  "unseen_categories_found": false,
+  "scaling_applied": false,
+  "scaling_note": "Deferred to 10_baseline_model/11_model_training if a scale-sensitive model is used; must be fit on X_train only if added.",
+  "known_risk": "Target positive rate is 5.8% (train) / 11.2% (val) / 39.5% (test) -- a severe, mechanical consequence of the chronological split landing the 2010 crisis-recovery period almost entirely in the test set. Test-split metrics should be read as an upper bound under crisis-recovery conditions, not a steady-state performance estimate. Validation-split metrics (11.2%, close to the overall 11.3% base rate) are the primary model-selection signal from 12_cross_validation onward. This caveat must be repeated wherever test metrics are quoted in 21_final_test_evaluation or later.",
+  "output_files": [
+    "train_raw.csv",
+    "val_raw.csv",
+    "test_raw.csv",
+    "X_train_processed.csv",
+    "X_val_processed.csv",
+    "X_test_processed.csv",
+    "y_train.csv",
+    "y_val.csv",
+    "y_test.csv",
+    "preprocessor.joblib"
+  ]
+}

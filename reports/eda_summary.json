@@ -1,0 +1,198 @@
+{
+  "model_numerical_features": [
+    "age",
+    "campaign",
+    "pdays_clean",
+    "previous",
+    "emp.var.rate",
+    "cons.price.idx",
+    "cons.conf.idx",
+    "euribor3m",
+    "nr.employed"
+  ],
+  "pdays_sentinel_handling": {
+    "pdays_missing_rate": 0.9632174419733903,
+    "derived_columns": [
+      "pdays_missing",
+      "pdays_clean"
+    ]
+  },
+  "target_positive_rate": 0.11265417111780131,
+  "high_correlation_pairs_pearson_0_70": [
+    {
+      "Feature_1": "emp.var.rate",
+      "Feature_2": "euribor3m",
+      "Abs_Pearson_Correlation": 0.9722446711516167
+    },
+    {
+      "Feature_1": "euribor3m",
+      "Feature_2": "nr.employed",
+      "Abs_Pearson_Correlation": 0.9451544313982757
+    },
+    {
+      "Feature_1": "emp.var.rate",
+      "Feature_2": "nr.employed",
+      "Abs_Pearson_Correlation": 0.9069701012560616
+    },
+    {
+      "Feature_1": "emp.var.rate",
+      "Feature_2": "cons.price.idx",
+      "Abs_Pearson_Correlation": 0.7753341708348431
+    }
+  ],
+  "vif_summary": [
+    {
+      "Feature": "nr.employed",
+      "VIF": 26255.52371333906,
+      "VIF_Level": "High"
+    },
+    {
+      "Feature": "cons.price.idx",
+      "VIF": 22358.99926604815,
+      "VIF_Level": "High"
+    },
+    {
+      "Feature": "euribor3m",
+      "VIF": 226.79344450957643,
+      "VIF_Level": "High"
+    },
+    {
+      "Feature": "cons.conf.idx",
+      "VIF": 118.22305973517824,
+      "VIF_Level": "High"
+    },
+    {
+      "Feature": "pdays_clean",
+      "VIF": 68.56438207880929,
+      "VIF_Level": "High"
+    },
+    {
+      "Feature": "emp.var.rate",
+      "VIF": 28.976688969531725,
+      "VIF_Level": "High"
+    },
+    {
+      "Feature": "age",
+      "VIF": 16.051506329188864,
+      "VIF_Level": "High"
+    },
+    {
+      "Feature": "campaign",
+      "VIF": 1.912520385898799,
+      "VIF_Level": "Low"
+    },
+    {
+      "Feature": "previous",
+      "VIF": 1.504454015410916,
+      "VIF_Level": "Low"
+    }
+  ],
+  "condition_number": 18.779275541663125,
+  "cohens_d_by_feature": [
+    {
+      "Feature": "age",
+      "Cohens_d": 0.09618926372791006,
+      "Effect_Size": "Negligible"
+    },
+    {
+      "Feature": "campaign",
+      "Cohens_d": -0.21033768816299525,
+      "Effect_Size": "Small"
+    },
+    {
+      "Feature": "pdays_clean",
+      "Cohens_d": -0.0733034061662243,
+      "Effect_Size": "Negligible"
+    },
+    {
+      "Feature": "previous",
+      "Cohens_d": 0.7481006286078523,
+      "Effect_Size": "Medium"
+    },
+    {
+      "Feature": "emp.var.rate",
+      "Cohens_d": -0.9885857857660123,
+      "Effect_Size": "Large"
+    },
+    {
+      "Feature": "cons.price.idx",
+      "Cohens_d": -0.4348594423485808,
+      "Effect_Size": "Small"
+    },
+    {
+      "Feature": "cons.conf.idx",
+      "Cohens_d": 0.17382896910461704,
+      "Effect_Size": "Negligible"
+    },
+    {
+      "Feature": "euribor3m",
+      "Cohens_d": -1.02307374703634,
+      "Effect_Size": "Large"
+    },
+    {
+      "Feature": "nr.employed",
+      "Cohens_d": -1.19976931971735,
+      "Effect_Size": "Large"
+    }
+  ],
+  "cramers_v_by_categorical_feature": [
+    {
+      "Feature": "poutcome",
+      "Cramers_V": 0.32048796034156973,
+      "Association_Strength": "Moderate"
+    },
+    {
+      "Feature": "month",
+      "Cramers_V": 0.2743948709306683,
+      "Association_Strength": "Moderate"
+    },
+    {
+      "Feature": "job",
+      "Cramers_V": 0.15276755102517953,
+      "Association_Strength": "Weak"
+    },
+    {
+      "Feature": "contact",
+      "Cramers_V": 0.14469331461054977,
+      "Association_Strength": "Weak"
+    },
+    {
+      "Feature": "default",
+      "Cramers_V": 0.09935422186499668,
+      "Association_Strength": "Negligible"
+    },
+    {
+      "Feature": "education",
+      "Cramers_V": 0.06847190717366518,
+      "Association_Strength": "Negligible"
+    },
+    {
+      "Feature": "marital",
+      "Cramers_V": 0.05457045126504373,
+      "Association_Strength": "Negligible"
+    },
+    {
+      "Feature": "day_of_week",
+      "Cramers_V": 0.025194657858251365,
+      "Association_Strength": "Negligible"
+    },
+    {
+      "Feature": "housing",
+      "Cramers_V": 0.01174791039026865,
+      "Association_Strength": "Negligible"
+    },
+    {
+      "Feature": "loan",
+      "Cramers_V": 0.0051538144342840216,
+      "Association_Strength": "Negligible"
+    }
+  ],
+  "macro_economic_multicollinearity_note": "emp.var.rate, euribor3m, nr.employed, cons.price.idx form a highly correlated cluster consistent with Notebook 01's disguised-timestamp finding.",
+  "feature_engineering_candidates": [
+    "pdays_missing (binary flag)",
+    "pdays_clean (sentinel replaced with NaN, to be imputed downstream)",
+    "macro-economic composite (PCA/index) in place of 4 raw collinear columns",
+    "previous / poutcome preferred over pdays for prior-contact flag",
+    "low_volume_month or cyclical month encoding"
+  ]
+}
