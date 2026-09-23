@@ -3,7 +3,7 @@
 
 **🔴 Live Application:** [marketing-campaign-response-modelling-v7fxpgbwwfmwgc8xt9rwu4.streamlit.app](https://marketing-campaign-response-modelling-v7fxpgbwwfmwgc8xt9rwu4.streamlit.app/)
 
-> Enter any customer's profile into the app and get an instant prediction of how likely they are to subscribe — before your team ever picks up the phone.
+> Enter any customer's profile into the app and get an instant prediction of how likely they are to subscribe before your team ever picks up the phone.
 
 ---
 
@@ -24,13 +24,13 @@ This project was built to fix exactly that.
 
 ## 💡 The Solution (In Business Terms)
 
-Instead of guessing, we built a system that **learns from the bank's own historical campaign data** — over 41,000 past customer interactions — to recognize the patterns behind who says "yes" and who says "no."
+Instead of guessing, we built a system that **learns from the bank's own historical campaign data** over 41,000 past customer interactions to recognize the patterns behind who says "yes" and who says "no."
 
 Think of it like a very experienced call center manager who has personally reviewed every past call the bank has ever made, and can now look at a *new* customer's profile and immediately say:
 
 > *"Based on everything I've seen before, this customer has a high/medium/low chance of subscribing."*
 
-That "manager" is a trained **Machine Learning model**. Given a customer's age, job, past contact history, and current economic conditions, it returns a **response score** — a number that tells the marketing team how promising that customer is, *before* any call is made.
+That "manager" is a trained **Machine Learning model**. Given a customer's age, job, past contact history, and current economic conditions, it returns a **response score** a number that tells the marketing team how promising that customer is, *before* any call is made.
 
 ### What this means for the bank:
 - 🎯 **Prioritize** high-scoring customers first, instead of calling in random order.
@@ -38,7 +38,7 @@ That "manager" is a trained **Machine Learning model**. Given a customer's age, 
 - 📈 **Increase overall conversion rate** by focusing effort where it counts.
 - 🧭 **Make data-driven decisions** instead of relying on intuition alone.
 
-This is decision *support*, not decision *replacement* — the model doesn't replace the marketing team, it tells them where to aim.
+This is decision *support*, not decision *replacement* the model doesn't replace the marketing team, it tells them where to aim.
 
 ---
 
@@ -68,9 +68,9 @@ As the data scientist on this project, here is the process that turned raw histo
 | LightGBM | Gradient boosting benchmark |
 | CatBoost | Gradient boosting benchmark |
 
-**Random Forest was chosen** because it gave the most reliable, generalizable results while staying interpretable enough to explain its decisions to non-technical stakeholders — an important factor for a tool business teams will actually trust and use.
+**Random Forest was chosen** because it gave the most reliable, generalizable results while staying interpretable enough to explain its decisions to non-technical stakeholders an important factor for a tool business teams will actually trust and use.
 
-One important engineering decision: the **`duration` of the phone call** was deliberately excluded from the model, even though it's a strong predictor in the raw data. Call duration is only known *after* the call has already happened — using it would mean the model is technically "cheating" by seeing the future. Removing it keeps the model honest and genuinely useful for its real purpose: deciding who to call *before* the call happens.
+One important engineering decision: the **`duration` of the phone call** was deliberately excluded from the model, even though it's a strong predictor in the raw data. Call duration is only known *after* the call has already happened using it would mean the model is technically "cheating" by seeing the future. Removing it keeps the model honest and genuinely useful for its real purpose: deciding who to call *before* the call happens.
 
 ---
 
@@ -79,9 +79,9 @@ One important engineering decision: the **`duration` of the phone call** was del
 These are the findings that matter most to the business, translated out of the technical analysis:
 
 - **A customer who responded positively to a previous campaign is by far the strongest signal** that they'll say yes again — these customers should be top priority.
-- **The broader economy matters.** Indicators like interest rates and consumer confidence noticeably shift how likely people are to subscribe — campaign timing isn't just a marketing decision, it's an economic one.
+- **The broader economy matters.** Indicators like interest rates and consumer confidence noticeably shift how likely people are to subscribe campaign timing isn't just a marketing decision, it's an economic one.
 - **Customer demographics (age, job, education) add meaningful predictive value** on top of campaign history alone.
-- **Repeatedly contacting the same customer has diminishing returns** — the data does not support "just call them more."
+- **Repeatedly contacting the same customer has diminishing returns** the data does not support "just call them more."
 - Overall, a **targeted approach guided by this model can meaningfully cut wasted calls** compared to contacting the full customer list.
 
 ---
@@ -96,7 +96,7 @@ These are the findings that matter most to the business, translated out of the t
 | F1 Score | 39.56% | A balanced measure combining precision and recall |
 | ROC-AUC | 81.23% | The model is significantly better than random guessing at ranking customers by likelihood |
 
-**Honest caveat, stated the way a responsible data scientist should:** this model is a **ranking and prioritization tool**, not a crystal ball. It's meaningfully better than calling customers at random, but it should be used to *sort* customers by likelihood — not treated as a guaranteed yes/no answer. The displayed percentage in the app is a **model confidence score**, not a certified probability. This is disclosed directly inside the app itself, in the interest of setting the right expectations for anyone using it operationally.
+**Honest caveat, stated the way a responsible data scientist should:** this model is a **ranking and prioritization tool**, not a crystal ball. It's meaningfully better than calling customers at random, but it should be used to *sort* customers by likelihood not treated as a guaranteed yes/no answer. The displayed percentage in the app is a **model confidence score**, not a certified probability. This is disclosed directly inside the app itself, in the interest of setting the right expectations for anyone using it operationally.
 
 ---
 
@@ -104,7 +104,7 @@ These are the findings that matter most to the business, translated out of the t
 
 **👉 [Open the live app here](https://marketing-campaign-response-modelling-v7fxpgbwwfmwgc8xt9rwu4.streamlit.app/)**
 
-No installation needed — it runs directly in your browser.
+No installation needed it runs directly in your browser.
 
 **How to use it:**
 1. Enter a customer's profile (age, job, marital status, education, etc.)
@@ -115,7 +115,7 @@ No installation needed — it runs directly in your browser.
    - A plain-language **business interpretation** of that score
    - The raw data the model actually used, for full transparency
 
-This is the exact same model used throughout this analysis — not a simplified demo version.
+This is the exact same model used throughout this analysis not a simplified demo version.
 
 ---
 
@@ -135,7 +135,7 @@ Marketing-Campaign-Response-Modelling
 └── README.md
 ```
 
-A key design choice worth noting for other engineers: the feature engineering logic used during **training** and the logic used during **live prediction** both call the exact same function (`src/features.py`). This eliminates train/serve skew — a common, hard-to-catch bug where a model behaves differently in production than it did during training because the two paths were implemented separately.
+A key design choice worth noting for other engineers: the feature engineering logic used during **training** and the logic used during **live prediction** both call the exact same function (`src/features.py`). This eliminates train/serve skew a common, hard-to-catch bug where a model behaves differently in production than it did during training because the two paths were implemented separately.
 
 ### Tech stack
 - **Language:** Python
