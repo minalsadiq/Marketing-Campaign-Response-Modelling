@@ -9,7 +9,7 @@
 
 ## 📌 The Business Problem
 
-Banks run large outbound marketing campaigns — phone calls, offers, follow-ups — to convince customers to open a **term deposit** (a type of savings product). The problem is simple to state and expensive to ignore:
+Banks run large outbound marketing campaigns phone calls, offers, follow-ups to convince customers to open a **term deposit** (a type of savings product). The problem is simple to state and expensive to ignore:
 
 - Calling **every single customer** in the database costs time, money, and staff hours.
 - The vast majority of people say **"no."**
@@ -78,7 +78,7 @@ One important engineering decision: the **`duration` of the phone call** was del
 
 These are the findings that matter most to the business, translated out of the technical analysis:
 
-- **A customer who responded positively to a previous campaign is by far the strongest signal** that they'll say yes again — these customers should be top priority.
+- **A customer who responded positively to a previous campaign is by far the strongest signal** that they'll say yes again these customers should be top priority.
 - **The broader economy matters.** Indicators like interest rates and consumer confidence noticeably shift how likely people are to subscribe campaign timing isn't just a marketing decision, it's an economic one.
 - **Customer demographics (age, job, education) add meaningful predictive value** on top of campaign history alone.
 - **Repeatedly contacting the same customer has diminishing returns** the data does not support "just call them more."
@@ -86,7 +86,7 @@ These are the findings that matter most to the business, translated out of the t
 
 ---
 
-## 🎯 Model Performance — What the Numbers Actually Mean
+## 🎯 Model Performance - What the Numbers Actually Mean
 
 | Metric | Score | What it means in plain English |
 |---|---|---|
@@ -168,7 +168,7 @@ streamlit run App/app.py
 
 ## 📚 Dataset Source
 
-- **UCI Machine Learning Repository — Bank Marketing Dataset**
+- **UCI Machine Learning Repository - Bank Marketing Dataset**
 - https://archive.ics.uci.edu/ml/datasets/Bank+Marketing
 
 ---
